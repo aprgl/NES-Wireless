@@ -1,5 +1,7 @@
-
-
+// Definition of interrupt names
+#include < avr/io.h >
+// ISR interrupt service routine
+#include < avr/interrupt.h >
 
 #define AABUTTON  0
 #define BBBUTTON  1
@@ -14,8 +16,16 @@
 #define CLK 9
 #define DTA 10
 
+boolean aa;
+boolean bb;
+boolean sl;
+boolean st;
+boolean up;
+boolean dn;
+boolean lt;
+boolean rt;
+
 void setup(){
-  //Serial.begin(9600);
   pinMode(AABUTTON, INPUT);
   pinMode(BBBUTTON, INPUT);
   pinMode(SLBUTTON, INPUT);
@@ -27,21 +37,29 @@ void setup(){
   pinMode(CLK, INPUT);
   pinMode(LTC, INPUT);
   pinMode(DTA, OUTPUT);
+  InitialiseInterrupt();
 }
 
 void loop()
 {
+  aa = digitalRead(AABUTTON);
+  bb = digitalRead(BBBUTTON);
+  sl = digitalRead(SLBUTTON);
+  st = digitalRead(STBUTTON);
+  up = digitalRead(UPBUTTON);
+  dn = digitalRead(DNBUTTON);
+  lt = digitalRead(LTBUTTON);
+  rt = digitalRead(RTBUTTON);
+}
 
-  boolean aa = digitalRead(AABUTTON);
-  boolean bb = digitalRead(BBBUTTON);
-  boolean sl = digitalRead(SLBUTTON);
-  boolean st = digitalRead(STBUTTON);
-  boolean up = digitalRead(UPBUTTON);
-  boolean dn = digitalRead(DNBUTTON);
-  boolean lt = digitalRead(LTBUTTON);
-  boolean rt = digitalRead(RTBUTTON);
+void InitialiseInterrupt(){
+  cli();		// switch interrupts off while messing with their settings  
+  PCICR  = 0x01;          // Enable PCINT0 interrupt
+  PCMSK0 = 0b00000001;
+  sei();		// turn interrupts back on
+}
 
-  while(digitalRead(LTC) == LOW);
+ISR(PCINT0_vect) {    // Interrupt service routine. Every single PCINT8..14 (=ADC0..5) change
   //A
   digitalWrite(DTA, aa);
   digitalWrite(DTA, aa);
@@ -85,3 +103,4 @@ void loop()
 
   digitalWrite(DTA, HIGH);
 }
+
